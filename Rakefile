@@ -4,12 +4,19 @@ begin
 rescue LoadError
   puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
 end
+
 begin
   require 'rdoc/task'
 rescue LoadError
   require 'rdoc/rdoc'
   require 'rake/rdoctask'
   RDoc::Task = Rake::RDocTask
+end
+
+begin
+  require 'appraisal'
+rescue LoadError
+  puts 'You must `gem install appraisal` to run rake'
 end
 
 RDoc::Task.new(:rdoc) do |rdoc|
@@ -34,5 +41,6 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = false
 end
 
-
-task :default => :test
+task :default do
+  sh "bundle exec rake appraisal:install && bundle exec rake appraisal test"
+end
