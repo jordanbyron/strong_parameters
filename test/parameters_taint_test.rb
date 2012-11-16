@@ -2,7 +2,7 @@ require 'test_helper'
 require 'action_controller/parameters'
 
 class ParametersTaintTest < ActiveSupport::TestCase
-  setup do
+  def setup
     @params = ActionController::Parameters.new({ :person => {
       :age => "32", :name => { :first => "David", :last => "Heinemeier Hansson" }
     }})

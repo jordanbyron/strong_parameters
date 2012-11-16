@@ -39,21 +39,45 @@ Thanks to Nick Kallen for the permit idea!
 
 In Gemfile:
 
-    gem 'strong_parameters'
+    gem 'strong_parameters_rails2', :require => 'strong_parameters'
 
 and then run `bundle`. To activate the strong parameters, you need to include this module in
 every model you want protected.
 
+=== Simple
+
     class Post < ActiveRecord::Base
-      include ActiveModel::ForbiddenAttributesProtection
+      include ActiveRecord::ForbiddenAttributesProtection
     end
 
-If you want to now disable the default whitelisting that occurs in later versions of Rails, change the +config.active_record.whitelist_attributes+ property in your +config/application.rb+:
+=== Rails 3 ready
 
-    config.active_record.whitelist_attributes = false
+    StrongParameters::ModelExtension = if Rails::VERSION::MAJOR == 2
+      ActiveRecord::ForbiddenAttributesProtection
+    else
+      ActiveModel::ForbiddenAttributesProtection
+    end
 
-This will allow you to remove / not have to use +attr_accessible+ and do mass assignment inside your code and tests. 
+    class Post < ActiveRecord::Base
+      include StrongParameters::ModelExtension
+    end
+
+=== Just logging for existing models
+
+    ActiveRecord::ForbiddenAttributesProtection.class_eval do
+      remove_method :assign_attributes_with_permitted # more sure we overwrite the correct method
+      def assign_attributes_with_permitted(attributes)
+        if attributes.respond_to?(:permitted?) && !attributes.permitted?
+          if Rails.env.production?
+            Rails.logger.error("Failed permitted attributes check \n#{caller[0..-10].join("\n")}")
+          else
+            raise ActiveRecord::ForbiddenAttributes
+          end
+        end
+        assign_attributes_without_permitted(attributes)
+      end
+    end
 
 == Compatibility
 
-This plugin is only fully compatible with Rails versions 3.1 and 3.2 but not 4.0+, as it is part of Rails Core in 4.0.
+This gem only supports Rails 2

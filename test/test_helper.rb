@@ -4,25 +4,15 @@ ENV["RAILS_ENV"] = "test"
 require 'test/unit'
 require 'strong_parameters'
 require 'mocha'
+require 'active_support/test_case'
+require 'action_controller/test_process'
 
-module ActionController
-  SharedTestRoutes = ActionDispatch::Routing::RouteSet.new
-  SharedTestRoutes.draw do
-    match ':controller(/:action)'
-  end
+ActionController::Routing::Routes.reload rescue nil
 
-  class Base
-    include ActionController::Testing
-    include SharedTestRoutes.url_helpers
-  end
+MissingSourceFile::REGEXPS << [/^cannot load such file -- (.+)$/i, 1]
 
-  class ActionController::TestCase
-    setup do
-      @routes = SharedTestRoutes
-    end
+ActionController::TestCase.class_eval do
+  def response
+    @response
   end
 end
-
-
-# Load support files
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }

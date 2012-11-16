@@ -1,4 +1,3 @@
-require 'active_support/concern'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'action_controller'
 
@@ -12,7 +11,7 @@ module ActionController
     end
   end
 
-  class Parameters < ActiveSupport::HashWithIndifferentAccess
+  class Parameters < HashWithIndifferentAccess
     attr_accessor :permitted
     alias :permitted? :permitted
 
@@ -83,15 +82,15 @@ module ActionController
     end
 
     def dup
-      super.tap do |duplicate|
-        duplicate.instance_variable_set :@permitted, @permitted
-      end
+      duplicate = Parameters.new(self)
+      duplicate.instance_variable_set :@permitted, @permitted
+      duplicate
     end
 
     protected
       def convert_value(value)
         if value.class == Hash
-          self.class.new_from_hash_copying_default(value)
+          self.class.new(value)
         elsif value.is_a?(Array)
           value.dup.replace(value.map { |e| convert_value(e) })
         else
@@ -122,18 +121,21 @@ module ActionController
         end
       end
   end
+end
 
-  module StrongParameters
-    extend ActiveSupport::Concern
-
-    included do
-      rescue_from(ActionController::ParameterMissing) do |parameter_missing_exception|
-        render :text => "Required parameter missing: #{parameter_missing_exception.param}", :status => :bad_request
-      end
+ActionController::Base
+module ActionController
+  Base.class_eval do
+    rescue_from ActionController::ParameterMissing do |parameter_missing_exception|
+      render :text => "Required parameter missing: #{parameter_missing_exception.param}", :status => :bad_request
     end
 
     def params
-      @_params ||= Parameters.new(request.parameters)
+      if @_params.is_a?(Parameters)
+        @_params
+      else
+        @_params = Parameters.new(request.parameters)
+      end
     end
 
     def params=(val)
@@ -141,5 +143,3 @@ module ActionController
     end
   end
 end
-
-ActionController::Base.send :include, ActionController::StrongParameters
