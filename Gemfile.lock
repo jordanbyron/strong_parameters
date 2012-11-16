@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    strong_parameters_rails2 (0.1.7.dev)
+    strong_parameters_rails2 (0.1.7)
       actionpack (~> 2.3)
       activerecord (~> 2.3)
 

@@ -1,3 +1,3 @@
 module StrongParameters
-  VERSION = "0.1.7.dev"
+  VERSION = "0.1.7"
 end
