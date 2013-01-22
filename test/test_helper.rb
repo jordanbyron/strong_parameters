@@ -16,3 +16,5 @@ ActionController::TestCase.class_eval do
     @response
   end
 end
+
+ActionController::Parameters.action_on_unpermitted_parameters = false
