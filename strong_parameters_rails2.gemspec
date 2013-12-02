@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["michael@grosser.it"]
   s.summary     = "Permitted and required parameters for Action Pack"
   s.license     = "MIT"
+  s.homepage    = "https://github.com/grosser/strong_parameters/tree/rails2"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
